@@ -1,0 +1,11 @@
+
+    Simulation Stats
+        Population Size: 10
+        Initial Infected: 1.0
+        Vaccinated % = 0.0
+        
+    Virus Stats
+        name: Ebola
+        Repro Rate: 0.5
+        Mortality Rate: 0.5
+        
