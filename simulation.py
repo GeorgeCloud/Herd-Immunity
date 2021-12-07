@@ -22,7 +22,8 @@ class Simulation(object):
         self.vacc_percentage = float(vacc_percentage)
         self.file_name = f"{virus.name}_simulation_pop_{pop_size}_vp_{vacc_percentage}_infected_{initial_infected}.txt"
         self.logger = Logger(self.file_name)
-        self.population = self._create_population(self.initial_infected)
+        self.population = []
+        self._create_population()
         self.dead_population = []
         self.newly_infected = []
 
@@ -34,8 +35,8 @@ class Simulation(object):
         Vaccinated % = {float(self.vacc_percentage)}
         '''
 
-    def _create_population(self, num_of_infected):
-        population = []
+    def _create_population(self):
+        num_of_infected = self.initial_infected
         num_people_vax = round(self.vacc_percentage * (self.pop_size - num_of_infected)) # Don't count infected as part of pop. Doesn't make sense what if everyone is vacinated and 1 person is intially infected?
 
         for idx in range(self.pop_size):
@@ -50,9 +51,7 @@ class Simulation(object):
             else:
                 person = Person(idx, False)  # People vaccinated
 
-            population.append(person)
-
-        return population
+            self.population.append(person)
 
     def _simulation_should_continue(self):
         for person in self.population:
