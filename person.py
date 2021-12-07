@@ -3,6 +3,7 @@ from virus import Virus
 
 # random.seed(42)
 
+
 class Person(object):
     def __init__(self, _id, is_vaccinated, infection=None):
         self._id = _id
@@ -13,12 +14,15 @@ class Person(object):
     def did_survive_infection(self, is_test=None):
         if self.infection:
             chance_of_survival = is_test or random.uniform(0, 1)
-
-            # If dead then return false
             if self.infection.mortality_rate > chance_of_survival:
-                return False
+                print('PERSON DIES')
+                self.is_alive = False
+            else:
+                print('NOW VAXXXED')
+                self.is_vaccinated = True
+                self.infection = None
 
-        return True
+        return self.is_alive
 
 
 def test_vacc_person_instantiation():

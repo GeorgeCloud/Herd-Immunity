@@ -1,0 +1,12 @@
+Running Simulation: 2021-12-07 10:44:30.455132 
+
+    Simulation Stats
+        Population Size: 1000
+        Initial Infected: 10.0
+        Vaccinated % = 0.0
+        
+    Simulation Stats
+        Population Size: 1000
+        Initial Infected: 10.0
+        Vaccinated % = 0.0
+        

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 class Logger(object):
     """ Utility class responsible for logging all interactions during the simulation. """
@@ -7,15 +7,15 @@ class Logger(object):
         self.file = None
         self.file_name = file_name
 
-    def write_metadata(self, simulation_obj, virus_obj):
+    def write_metadata(self, simulation_obj):
         """ Log Simulation Inputs to text file. """
         with open(self.file_name, 'w') as file:
+            file.write(f'Running Simulation: {datetime.now()} \n')
             file.write(simulation_obj.__str__())
-            file.write(virus_obj.__str__() + "\n")
-            file.write(f'Running Simulation: {datetime.datime.now()} \n')
+            file.write(simulation_obj.__str__() + "\n")
             self.file = file
 
-    def log_interaction(self, step, interactions, new_infections, total_death, vaccinations):
+    def log_every_step(self):
         """ Log Every Step """
         self.file.write('step:', step)
         self.file.write(f'Interactions: {interactions} | New Infections: {new_infections} | deaths: {total_death} |'

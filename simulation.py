@@ -17,7 +17,7 @@ class Simulation(object):
         self.virus = virus  # <virus_obj>
         self.initial_infected = int(initial_infected)
         self.encounters = 0
-        self.total_infected = 0  # Int
+        self.total_infected = int(initial_infected)  # Int
         self.current_infected = 0  # Int
         self.vacc_percentage = float(vacc_percentage)
         self.file_name = f"{virus.name}_simulation_pop_{pop_size}_vp_{vacc_percentage}_infected_{initial_infected}.txt"
@@ -26,6 +26,7 @@ class Simulation(object):
         self._create_population()
         self.dead_population = []
         self.newly_infected = []
+        self.infected = []
 
     def __str__(self):
         return f'''
@@ -54,43 +55,42 @@ class Simulation(object):
             self.population.append(person)
 
     def _simulation_should_continue(self):
+        if self.pop_size == 0:
+            return False
+
         for person in self.population:
-            if person.is_alive:
+            if person.infection:
                 return True
-        return False
+
+        print('infection dies')
+        return False  # Infection is dead
 
     def run(self):
         """ Run the simulation until all requirements for ending the simulation are met. """
-        self.logger.write_metadata(self, self.virus)
+        self.logger.write_metadata(self)
 
         time_step_counter = 0
-        should_continue = self._simulation_should_continue()
+        should_continue = True
+        self.infected = [i for i in self.population[:self.initial_infected]]
 
-        # while should_continue:
-        print('population: ', self.population, '\n')
-        self.time_step()
-        time_step_counter += 1
-        # should_continue = self._simulation_should_continue()
-
-        print(f'The simulation has ended after {time_step_counter} turns.')
+        while should_continue:
+            time_step_counter += 1
+            print(f'The simulation turns {time_step_counter}.')
+            self.time_step()
+            should_continue = self._simulation_should_continue()
 
     def time_step(self):
-        for idx in range(self.initial_infected):
-            infected_person = self.population.pop(idx)
-
-            for _ in range(100):  # Refactor
+        interactions = 0
+        for infected_person in self.infected:
+            self.population.remove(infected_person)
+            for _ in range(100):
                 random_person = self.population[random_number(0, self.pop_size-1)]
-
-                print(f'Infected Person: {infected_person} INTERACTED with {random_person}')
                 self.interaction(infected_person, random_person)
+                interactions += 1
+            self.population.append(infected_person)
 
-            self.population.insert(idx, infected_person)
-
-        print('infected:', len(self.newly_infected))
         self.population_health_check()
-
-        print('\n', len(self.dead_population), 'dead people:', self.dead_population)
-
+        self.infected = self.newly_infected
         self.newly_infected = []
 
     def interaction(self, person, random_person):
@@ -98,22 +98,21 @@ class Simulation(object):
         assert person.is_alive is True
         assert random_person.is_alive is True
 
-        chance_of_bypass = random.uniform(0, 1)
+        chance_of_survival = random.uniform(0, 1)
         if not random_person.is_vaccinated and random_person.infection is None:
-            if chance_of_bypass < person.infection.repro_rate:
-                random_person.infection = person.infection                              # LOG: Newly infected person
+            if chance_of_survival < person.infection.repro_rate:
+                random_person.infection = person.infection
                 self.newly_infected.append(random_person)
+                self.current_infected += 1
 
         self.encounters += 1
 
     def population_health_check(self):
-        for person in self.newly_infected:
+        for person in self.infected:
             if not person.did_survive_infection():
-                person.is_alive = False                                                 # LOG: Dead person
+                self.population.remove(person)
+                self.pop_size -= 1
                 self.dead_population.append(person)
-
-        self.newly_infected = []                                                        # LOG: Reset newly infected list
-
 
 if __name__ == "__main__":
     params = sys.argv[1:]
