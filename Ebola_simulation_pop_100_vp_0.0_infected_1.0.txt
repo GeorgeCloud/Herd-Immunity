@@ -1,0 +1,22 @@
+Running Simulation: 2021-12-08 01:51:42.965292 
+
+    Simulation Stats
+        Population Size: 100
+        Initial Infected: 1.0
+        Vaccinated % = 0.0
+        
+    Virus Stats
+        name: Ebola
+        Repro Rate: 0.5
+        Mortality Rate: 0.0
+        
+step: 1
+	Interactions: 100 | New Infections: 1 | deaths: 0 | vaccinations: 1
+step: 2
+	Interactions: 3900 | New Infections: 39 | deaths: 0 | vaccinations: 39
+step: 3
+	Interactions: 5900 | New Infections: 59 | deaths: 0 | vaccinations: 59
+
+Population count: 100 | Dead: 0 | Vaccinated: 99
+
+Simulation Ended: Infection Died

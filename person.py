@@ -9,16 +9,14 @@ class Person(object):
         self._id = _id
         self.is_alive = True
         self.is_vaccinated = is_vaccinated
-        self.infection = infection  # Virus object or None
+        self.infection = infection
 
     def did_survive_infection(self, is_test=None):
         if self.infection:
             chance_of_survival = is_test or random.uniform(0, 1)
             if self.infection.mortality_rate > chance_of_survival:
-                print('PERSON DIES')
                 self.is_alive = False
             else:
-                print('NOW VAXXXED')
                 self.is_vaccinated = True
                 self.infection = None
 
@@ -32,6 +30,7 @@ def test_vacc_person_instantiation():
     assert person.is_vaccinated is True
     assert person.infection is None
 
+
 def test_not_vacc_person_instantiation():
     person = Person(2, False)
     assert person._id == 2
@@ -40,6 +39,7 @@ def test_not_vacc_person_instantiation():
 
     for _ in range(10):
         assert person.did_survive_infection() is True
+
 
 def test_sick_person_instantiation():
     virus = Virus("Dysentery", 0.7, 0.2)
@@ -53,22 +53,15 @@ def test_sick_person_instantiation():
     for _ in range(10):
         assert person.did_survive_infection(chance_of_survival) is False
 
+
 def test_did_survive_infection():
     virus = Virus("Dysentery", 0.7, 0.2)
     person = Person(4, False, virus)
-
     survived = person.did_survive_infection()
     if survived:
         assert person.is_alive is True
-        # TODO: Write your own assert statements that test
-        # the values of each attribute for a Person who survived
-        # assert ...
     else:
         assert person.is_alive is False
-        # TODO: Write your own assert statements that test
-        # the values of each attribute for a Person who did not survive
-        # assert ...
-        pass
 
 
 if __name__ == "__main__":
