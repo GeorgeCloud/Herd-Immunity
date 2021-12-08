@@ -6,8 +6,10 @@ from virus import Virus
 
 random.seed(42)
 
+
 def random_number(start, end):
     return random.randrange(start, end)
+
 
 class Simulation(object):
     def __init__(self, virus, pop_size, vacc_percentage, initial_infected=1):
@@ -21,12 +23,17 @@ class Simulation(object):
         self.current_infected = 0  # Int
         self.vacc_percentage = float(vacc_percentage)
         self.file_name = f"{virus.name}_simulation_pop_{pop_size}_vp_{vacc_percentage}_infected_{initial_infected}.txt"
-        self.logger = Logger(self.file_name)
+        self.logger = Logger(self.file_name, self.pop_size)
         self.population = []
         self._create_population()
-        self.dead_population = []
         self.newly_infected = []
         self.infected = []
+
+        self.dead_in_step = 0
+        self.total_dead = 0
+
+        self.vaccinated_in_step = 0
+        self.total_vaccinated = 0
 
     def __str__(self):
         return f'''
@@ -56,6 +63,7 @@ class Simulation(object):
 
     def _simulation_should_continue(self):
         if self.pop_size == 0:
+            self.logger.log_results('Population Died', 1, 1)
             return False
 
         for person in self.population:
@@ -63,21 +71,34 @@ class Simulation(object):
                 return True
 
         print('infection dies')
+        self.logger.log_results('Infection Died', 1, 1)
         return False  # Infection is dead
 
     def run(self):
         """ Run the simulation until all requirements for ending the simulation are met. """
-        self.logger.write_metadata(self)
+        self.logger.write_metadata(self.__str__(), virus.__str__())
 
-        time_step_counter = 0
+        step_count = 0
         should_continue = True
         self.infected = [i for i in self.population[:self.initial_infected]]
 
         while should_continue:
-            time_step_counter += 1
-            print(f'The simulation turns {time_step_counter}.')
+            step_count += 1
+            print(f'The simulation turns {step_count}.')
             self.time_step()
+            self.logger.log_step(step_count, self.encounters, len(self.newly_infected), self.dead_in_step,
+                                 self.vaccinated_in_step)
+
             should_continue = self._simulation_should_continue()
+
+        self.total_dead = self.dead_in_step
+        self.dead_in_step = 0
+
+        self.total_dead = self.vaccinated_in_step
+        self.vaccinated_in_step = 0
+        self.newly_infected = []
+
+        self.logger.file.close()
 
     def time_step(self):
         interactions = 0
@@ -91,7 +112,6 @@ class Simulation(object):
 
         self.population_health_check()
         self.infected = self.newly_infected
-        self.newly_infected = []
 
     def interaction(self, person, random_person):
         """ Only pass infection to healthy person who is unvaccinated. """
@@ -112,7 +132,10 @@ class Simulation(object):
             if not person.did_survive_infection():
                 self.population.remove(person)
                 self.pop_size -= 1
-                self.dead_population.append(person)
+                self.dead_in_step += 1
+            else:
+                self.vaccinated_in_step += 1
+
 
 if __name__ == "__main__":
     params = sys.argv[1:]
